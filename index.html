@@ -541,7 +541,7 @@
         // ---------------------------------------------------------
         function unduhGambar() {
             try {
-                // Konversi menjadi Blob JPEG dengan kualitas tinggi (95%)
+                // Konversi menjadi Blob JPEG dengan kualitas tinggi (100%)
                 renderCanvas.toBlob(function(blob) {
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -552,7 +552,7 @@
                     link.click();
                     document.body.removeChild(link);
                     URL.revokeObjectURL(url);
-                }, 'image/jpeg', 0.95);
+                }, 'image/jpeg', 1.0);
             } catch (err) {
                 alert("Silakan ketuk dan tahan gambar untuk menyimpan secara manual.");
             }
