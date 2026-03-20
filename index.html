@@ -72,36 +72,36 @@
     <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8 flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-12 items-start pb-8">
         
         <!-- PANEL KANAN: PREVIEW (Canvas) -->
-        <div class="w-full lg:col-span-7 flex flex-col items-center lg:sticky lg:top-24 z-50 order-1 lg:order-2 mb-2 lg:mb-0">
+        <div class="w-full lg:col-span-7 flex flex-col items-center lg:sticky lg:top-24 z-50 order-1 lg:order-2 mb-2 lg:mb-0 pointer-events-none lg:pointer-events-auto">
 
-            <!-- Placeholder Khusus Mobile agar layout tidak "anjlok" ke atas saat gambar dibuat melayang -->
-            <div id="mobilePlaceholder" class="w-full h-[340px] sm:h-[400px] lg:hidden"></div>
+            <!-- Placeholder Khusus Mobile agar layout tidak "anjlok" ke atas -->
+            <div id="mobilePlaceholder" class="w-full h-[320px] sm:h-[380px] lg:hidden"></div>
 
-            <!-- Kontainer Pratinjau (Akan menjadi floating di mobile) -->
-            <!-- Pointer-events-none di mobile agar sentuhan layar tembus ke tools di belakangnya jika tumpang tindih -->
-            <div id="floatingPreview" class="fixed lg:relative top-20 lg:top-0 left-1/2 lg:left-auto -translate-x-1/2 lg:translate-x-0 w-[220px] sm:w-[260px] lg:w-full lg:max-w-[450px] transition-all duration-500 ease-in-out z-50 pointer-events-none lg:pointer-events-auto">
+            <!-- Kontainer Pratinjau (Akan digerakkan secara matematis oleh Scroll) -->
+            <!-- Dihapus transisinya agar bisa mengikuti jari secara real-time tanpa delay -->
+            <div id="floatingPreview" class="fixed lg:relative top-20 lg:top-0 w-[220px] sm:w-[260px] lg:w-full lg:max-w-[450px] z-50 pointer-events-none lg:pointer-events-auto will-change-transform">
                 
-                <div id="previewHeader" class="w-full flex justify-center lg:justify-between items-center mb-3 lg:mb-4 px-1 lg:px-2 transition-all duration-500 origin-center">
-                    <span class="text-xs lg:text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center bg-white/90 dark:bg-slate-900/90 px-3 py-1.5 rounded-full backdrop-blur-sm lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none shadow-sm lg:shadow-none border border-slate-200 dark:border-slate-800 lg:border-none">
+                <div id="previewHeader" class="w-full flex justify-center lg:justify-between items-center px-1 lg:px-2 origin-center overflow-hidden">
+                    <span class="text-xs lg:text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center bg-white/90 dark:bg-slate-900/90 px-3 py-1.5 rounded-full backdrop-blur-sm lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none shadow-sm lg:shadow-none border border-slate-200 dark:border-slate-800 lg:border-none whitespace-nowrap">
                         <span class="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Pratinjau
                     </span>
-                    <button onclick="unduhGambar()" class="hidden lg:flex pointer-events-auto bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2.5 px-5 rounded-lg shadow-md transition-all items-center">
+                    <button onclick="unduhGambar()" class="hidden lg:flex pointer-events-auto bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2.5 px-5 rounded-lg shadow-md transition-all items-center whitespace-nowrap">
                         <i data-lucide="download" class="w-4 h-4 mr-2"></i> Unduh File
                     </button>
                 </div>
 
-                <div id="previewBox" class="relative w-full aspect-[3/4] rounded-3xl lg:rounded-[2rem] overflow-hidden bg-slate-200 dark:bg-slate-800 border-4 lg:border-8 border-white dark:border-slate-900 shadow-2xl transition-all duration-500 mx-auto">
+                <div id="previewBox" class="relative w-full aspect-[3/4] rounded-3xl lg:rounded-[2rem] overflow-hidden bg-slate-200 dark:bg-slate-800 border-4 lg:border-8 border-white dark:border-slate-900 shadow-2xl mx-auto will-change-transform">
                     
                     <div id="loadingIndicator" class="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm hidden transition-all">
                         <i data-lucide="loader-circle" class="w-8 h-8 lg:w-10 lg:h-10 text-emerald-600 animate-spin mb-2 lg:mb-3"></i>
                         <span class="text-xs lg:text-sm font-medium text-slate-600 dark:text-slate-300">Menyusun...</span>
                     </div>
                     
-                    <img id="previewImage" src="" alt="Preview Kartu" class="w-full h-full object-cover transition-opacity duration-300">
+                    <img id="previewImage" src="" alt="Preview Kartu" class="w-full h-full object-cover">
                     <canvas id="renderCanvas"></canvas>
                 </div>
                 
-                <p class="text-xs text-slate-400 dark:text-slate-500 mt-5 text-center max-w-sm hidden lg:block mx-auto">
+                <p class="text-xs text-slate-400 dark:text-slate-500 mt-5 text-center max-w-sm hidden lg:block mx-auto pointer-events-auto">
                     Desain Anda tidak diunggah ke server. Semua proses dilakukan secara aman di dalam perangkat Anda.
                 </p>
             </div>
@@ -110,7 +110,7 @@
         <!-- PANEL KIRI: EDITOR (Tools) -->
         <div class="w-full lg:col-span-5 flex flex-col gap-6 order-2 lg:order-1 pt-2 lg:pt-0">
             
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors relative z-20">
                 <h2 class="text-lg font-semibold flex items-center mb-6 text-slate-900 dark:text-white">
                     <i data-lucide="layout-template" class="w-5 h-5 mr-2.5 text-emerald-600"></i> Pilih Desain
                 </h2>
@@ -120,7 +120,7 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors relative z-20">
                 <h2 class="text-lg font-semibold flex items-center mb-6 text-slate-900 dark:text-white">
                     <i data-lucide="type" class="w-5 h-5 mr-2.5 text-emerald-600"></i> Personalisasi Teks
                 </h2>
@@ -138,34 +138,35 @@
                     </div>
 
                     <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <label class="block text-sm font-medium text-slate-600 dark:text-slate-400">Nama Pengirim Utama</label>
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Nama Pengirim Utama</label>
+                        <div class="relative flex items-center">
+                            <!-- Input dengan padding kanan ekstra (pr-24) agar teks tidak menabrak tombol -->
+                            <input type="text" id="inputNamaUtama" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white pl-4 pr-24 py-3.5 rounded-xl text-base font-semibold placeholder-slate-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none" placeholder="Nama">
                             
-                            <!-- Tombol Skala Nama Utama -->
-                            <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 shadow-inner gap-1">
-                                <button id="btnMinUtama" class="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 transition-colors"><i data-lucide="minus" class="w-4 h-4"></i></button>
-                                <button id="btnPlusUtama" class="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 transition-colors"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                            <!-- Tombol Skala (Opsi 3 & 4: Di dalam Input dengan Aksen Emerald) -->
+                            <div class="absolute right-2 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 p-1 rounded-lg border border-emerald-100 dark:border-emerald-800/50">
+                                <button id="btnMinUtama" class="w-7 h-7 flex items-center justify-center rounded-md bg-white hover:bg-emerald-100 dark:bg-slate-800 dark:hover:bg-emerald-800 shadow-sm text-emerald-600 dark:text-emerald-400 transition-colors"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>
+                                <button id="btnPlusUtama" class="w-7 h-7 flex items-center justify-center rounded-md bg-white hover:bg-emerald-100 dark:bg-slate-800 dark:hover:bg-emerald-800 shadow-sm text-emerald-600 dark:text-emerald-400 transition-colors"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>
                             </div>
                         </div>
-                        <input type="text" id="inputNamaUtama" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white px-4 py-3.5 rounded-xl text-base font-semibold placeholder-slate-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none" placeholder="Nama">
                     </div>
                     
                     <div class="pt-2 border-t border-slate-100 dark:border-slate-800/50">
-                        <div class="flex items-center justify-between mb-2 mt-2">
-                            <label class="block text-sm font-medium text-slate-600 dark:text-slate-400">Teks Pendukung / Keluarga</label>
+                        <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2 mt-2">Teks Pendukung / Keluarga</label>
+                        <div class="relative flex items-center">
+                            <input type="text" id="inputNamaSekunder" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white pl-4 pr-24 py-3.5 rounded-xl text-base placeholder-slate-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none" placeholder="Keterangan">
                             
-                            <!-- Tombol Skala Teks Sekunder -->
-                            <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 shadow-inner gap-1">
-                                <button id="btnMinSekunder" class="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 transition-colors"><i data-lucide="minus" class="w-4 h-4"></i></button>
-                                <button id="btnPlusSekunder" class="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm text-slate-700 dark:text-slate-200 transition-colors"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                            <!-- Tombol Skala (Opsi 3 & 4) -->
+                            <div class="absolute right-2 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-900/30 p-1 rounded-lg border border-emerald-100 dark:border-emerald-800/50">
+                                <button id="btnMinSekunder" class="w-7 h-7 flex items-center justify-center rounded-md bg-white hover:bg-emerald-100 dark:bg-slate-800 dark:hover:bg-emerald-800 shadow-sm text-emerald-600 dark:text-emerald-400 transition-colors"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button>
+                                <button id="btnPlusSekunder" class="w-7 h-7 flex items-center justify-center rounded-md bg-white hover:bg-emerald-100 dark:bg-slate-800 dark:hover:bg-emerald-800 shadow-sm text-emerald-600 dark:text-emerald-400 transition-colors"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button>
                             </div>
                         </div>
-                        <input type="text" id="inputNamaSekunder" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white px-4 py-3.5 rounded-xl text-base placeholder-slate-400 dark:placeholder-slate-600 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none" placeholder="Keterangan">
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors relative z-20">
                 <h2 class="text-lg font-semibold flex items-center mb-6 text-slate-900 dark:text-white">
                     <i data-lucide="move" class="w-5 h-5 mr-2.5 text-emerald-600"></i> Atur Posisi Teks
                 </h2>
@@ -188,8 +189,8 @@
                 </div>
             </div>
 
-            <!-- Tombol Download Mobile yang mengalir secara alami di bawah box adjustment -->
-            <button onclick="unduhGambar()" class="w-full lg:hidden bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 rounded-2xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center mt-2">
+            <!-- Tombol Download Mobile -->
+            <button onclick="unduhGambar()" class="w-full lg:hidden bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 rounded-2xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center mt-2 relative z-20">
                 <i data-lucide="download" class="w-5 h-5 mr-2"></i> Simpan Gambar ke HP
             </button>
 
@@ -198,7 +199,7 @@
     </main>
 
     <!-- Footer / Support Kreator -->
-    <footer class="w-full pb-12 pt-8 flex flex-col items-center justify-center border-t border-slate-200 dark:border-slate-800 mt-auto transition-colors">
+    <footer class="w-full pb-12 pt-8 flex flex-col items-center justify-center border-t border-slate-200 dark:border-slate-800 mt-auto transition-colors relative z-20">
         <p class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4">Dukung kreator:</p>
         <div class="flex flex-wrap items-center justify-center gap-3 px-4">
             <a href="https://www.instagram.com/_anasubaid/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white transition-all bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-full hover:shadow-lg hover:shadow-pink-500/30 transform hover:-translate-y-1">
@@ -233,51 +234,52 @@
         });
 
         // ---------------------------------------------------------
-        // LOGIKA ANIMASI FLOATING PREVIEW (HANYA UNTUK MOBILE)
+        // ANIMASI SCROLL-DRIVEN (INTERPOLASI MATEMATIS)
         // ---------------------------------------------------------
         const floatingPreview = document.getElementById('floatingPreview');
         const previewHeader = document.getElementById('previewHeader');
-        const previewBox = document.getElementById('previewBox');
-        let isShrunk = false;
-
-        window.addEventListener('scroll', () => {
-            // Abaikan jika di desktop (karena desktop menggunakan sticky biasa di kolom kanan)
-            if (window.innerWidth >= 1024) return; 
-
-            // Jika scroll ke bawah melewati 80px, perkecil dan pindahkan ke kiri
-            if (window.scrollY > 80 && !isShrunk) {
-                isShrunk = true;
-                
-                // Pindah posisi & ubah ukuran
-                floatingPreview.classList.remove('left-1/2', '-translate-x-1/2', 'w-[220px]', 'sm:w-[260px]');
-                floatingPreview.classList.add('left-4', 'translate-x-0', 'w-[100px]', 'sm:w-[120px]');
-                
-                // Sembunyikan Header 'Pratinjau'
-                previewHeader.classList.add('opacity-0', 'scale-75', 'h-0', 'mb-0', 'overflow-hidden');
-                previewHeader.classList.remove('opacity-100', 'scale-100', 'mb-3', 'lg:mb-4');
-                
-                // Sesuaikan border & shadow agar proporsional saat kecil
-                previewBox.classList.remove('border-4', 'shadow-2xl', 'rounded-3xl');
-                previewBox.classList.add('border-2', 'shadow-lg', 'rounded-xl');
-                
-            } 
-            // Jika scroll kembali ke atas banget, kembalikan ke tengah membesar
-            else if (window.scrollY <= 80 && isShrunk) {
-                isShrunk = false;
-                
-                // Kembalikan ke posisi tengah
-                floatingPreview.classList.add('left-1/2', '-translate-x-1/2', 'w-[220px]', 'sm:w-[260px]');
-                floatingPreview.classList.remove('left-4', 'translate-x-0', 'w-[100px]', 'sm:w-[120px]');
-                
-                // Tampilkan Header 'Pratinjau'
-                previewHeader.classList.remove('opacity-0', 'scale-75', 'h-0', 'mb-0', 'overflow-hidden');
-                previewHeader.classList.add('opacity-100', 'scale-100', 'mb-3', 'lg:mb-4');
-                
-                // Kembalikan ketebalan border
-                previewBox.classList.add('border-4', 'shadow-2xl', 'rounded-3xl');
-                previewBox.classList.remove('border-2', 'shadow-lg', 'rounded-xl');
+        
+        function updateScrollAnimation() {
+            // Animasi scroll hanya berlaku untuk mobile (lebar layar di bawah 1024px)
+            if (window.innerWidth >= 1024) {
+                // Reset semua inline style ke default untuk mode desktop
+                floatingPreview.style = "";
+                previewHeader.style = "";
+                return;
             }
+            
+            const scrollY = window.scrollY;
+            // Berapa piksel scroll yang dibutuhkan untuk mencapai ukuran terkecil?
+            const maxScroll = 180; 
+            
+            // Progress akan bernilai 0.0 sampai 1.0 (proporsional dengan gerakan jari)
+            const progress = Math.max(0, Math.min(1, scrollY / maxScroll));
+            
+            // Interpolasi Skala: dari 1 (100%) menjadi 0.45 (45%)
+            const scale = 1 - (0.55 * progress); 
+            
+            // Menghitung titik pusat awal dan target pojok kiri (16px dari tepi)
+            // Menggunakan transform dan CSS Calc agar render 60fps mulus tanpa patah-patah
+            floatingPreview.style.left = `calc(50% - (50% - 16px) * ${progress})`;
+            floatingPreview.style.transform = `translateX(calc(-50% * (1 - ${progress}))) scale(${scale})`;
+            floatingPreview.style.transformOrigin = "top left";
+            
+            // Memudarkan header "Pratinjau" dan menghilangkan marginnya
+            previewHeader.style.opacity = Math.max(0, 1 - (progress * 2)); // Pudar lebih cepat
+            previewHeader.style.height = `${Math.max(0, 44 * (1 - progress))}px`; 
+            previewHeader.style.marginBottom = `${Math.max(0, 16 * (1 - progress))}px`;
+        }
+
+        // Tautkan update ke event Scroll dengan requestAnimationFrame untuk performa terbaik
+        window.addEventListener('scroll', () => {
+            requestAnimationFrame(updateScrollAnimation);
         });
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(updateScrollAnimation);
+        });
+        
+        // Panggil sekali saat web dimuat untuk menetapkan posisi awal
+        updateScrollAnimation();
 
 
         // ---------------------------------------------------------
@@ -285,81 +287,39 @@
         // ---------------------------------------------------------
         const templates = [
             { 
-                id: 1, 
-                file: '1.jpg', 
-                boxCenterY: 0.842, 
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.075, 
-                sizeSekunderMult: 0.030,
-                lineSpacing: 0.015,
-                color: '#0f3d3e' 
+                id: 1, file: '1.jpg', boxCenterY: 0.842, 
+                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
+                sizeUtamaMult: 0.075, sizeSekunderMult: 0.030, lineSpacing: 0.015, color: '#0f3d3e' 
             },
             { 
-                id: 2, 
-                file: '2.jpg', 
-                boxCenterY: 0.865,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.065, 
-                sizeSekunderMult: 0.026,
-                lineSpacing: 0.015,
-                color: '#1e3a8a' 
+                id: 2, file: '2.jpg', boxCenterY: 0.865,
+                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
+                sizeUtamaMult: 0.065, sizeSekunderMult: 0.026, lineSpacing: 0.015, color: '#1e3a8a' 
             },
             { 
-                id: 3, 
-                file: '3.jpg', 
-                boxCenterY: 0.825,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, 
-                sizeSekunderMult: 0.028,
-                lineSpacing: 0.015,
-                color: '#1e293b' 
+                id: 3, file: '3.jpg', boxCenterY: 0.825,
+                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
+                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#1e293b' 
             },
             { 
-                id: 4, 
-                file: '4.jpg', 
-                boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, 
-                sizeSekunderMult: 0.028,
-                lineSpacing: 0.015,
-                color: '#0f3d3e' 
+                id: 4, file: '4.jpg', boxCenterY: 0.840,
+                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
+                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#0f3d3e' 
             },
             { 
-                id: 5, 
-                file: '5.jpg', 
-                boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, 
-                sizeSekunderMult: 0.028,
-                lineSpacing: 0.015,
-                color: '#1e3a8a' 
+                id: 5, file: '5.jpg', boxCenterY: 0.840,
+                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
+                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#1e3a8a' 
             },
             { 
-                id: 6, 
-                file: '6.jpg', 
-                boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, 
-                sizeSekunderMult: 0.028,
-                lineSpacing: 0.015,
-                color: '#1e293b' 
+                id: 6, file: '6.jpg', boxCenterY: 0.840,
+                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
+                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#1e293b' 
             },
             { 
-                id: 7, 
-                file: '7.jpg', 
-                boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, 
-                sizeSekunderMult: 0.028,
-                lineSpacing: 0.015,
-                color: '#333333' 
+                id: 7, file: '7.jpg', boxCenterY: 0.840,
+                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
+                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#333333' 
             }
         ];
 
@@ -500,8 +460,7 @@
         // ---------------------------------------------------------
         function prosesRender() {
             loadingIndicator.classList.remove('hidden');
-            previewImage.style.opacity = '0.3';
-
+            
             const activeConfig = templates.find(t => t.id === activeTemplateId);
             const img = new Image();
             img.crossOrigin = "Anonymous";
@@ -543,7 +502,6 @@
 
                 // Logika Penempatan Simetris Presisi (Vertical Centering)
                 if (txtUtama && txtSekunder) {
-                    // Hitung total tinggi blok teks agar bisa di-center sempurna di finalY
                     const totalHeight = sizeUtama + spacing + sizeSekunder;
                     const yUtama = finalY - (totalHeight / 2) + (sizeUtama / 2);
                     const ySekunder = finalY + (totalHeight / 2) - (sizeSekunder / 2);
@@ -556,12 +514,10 @@
                     ctx.textBaseline = 'middle';
                     ctx.fillText(txtSekunder, finalX, ySekunder); 
                 } else if (txtUtama) {
-                    // Jika hanya ada nama utama, letakkan persis di tengah
                     ctx.font = `bold ${sizeUtama}px ${activeConfig.fontUtama}`;
                     ctx.textBaseline = 'middle';
                     ctx.fillText(txtUtama, finalX, finalY);
                 } else if (txtSekunder) {
-                    // Jika hanya ada teks pendukung, letakkan persis di tengah
                     ctx.font = `500 ${sizeSekunder}px ${activeConfig.fontSekunder}`;
                     ctx.textBaseline = 'middle';
                     ctx.fillText(txtSekunder, finalX, finalY);
@@ -571,7 +527,6 @@
                 previewImage.src = renderCanvas.toDataURL('image/jpeg', 0.9);
                 
                 loadingIndicator.classList.add('hidden');
-                previewImage.style.opacity = '1';
             };
 
             img.onerror = () => {
