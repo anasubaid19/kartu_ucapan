@@ -118,6 +118,11 @@
                 <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2" id="thumbnailContainer">
                     <!-- Thumbnail akan digenerate oleh JavaScript -->
                 </div>
+                
+                <!-- Indikator Slide Kustom -->
+                <div class="mt-4 w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden relative" id="scrollIndicatorTrack" style="display: none;">
+                    <div class="absolute top-0 left-0 h-full bg-emerald-500 rounded-full transition-all duration-75" id="scrollIndicatorThumb" style="width: 20%;"></div>
+                </div>
             </div>
 
             <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors relative z-20">
@@ -214,399 +219,386 @@
     </footer>
 
     <script>
-        // Inisialisasi Icon
-        lucide.createIcons();
+        // Gunakan DOMContentLoaded agar elemen HTML pasti dimuat sebelum script dieksekusi
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inisialisasi Icon
+            lucide.createIcons();
 
-        // ---------------------------------------------------------
-        // LOGIKA THEME TOGGLE (LIGHT / DARK MODE)
-        // ---------------------------------------------------------
-        const themeToggleBtn = document.getElementById('themeToggle');
-        
-        themeToggleBtn.addEventListener('click', () => {
-            const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.theme = 'light';
-            } else {
-                html.classList.add('dark');
-                localStorage.theme = 'dark';
+            // ---------------------------------------------------------
+            // LOGIKA THEME TOGGLE (LIGHT / DARK MODE)
+            // ---------------------------------------------------------
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if(themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const html = document.documentElement;
+                    if (html.classList.contains('dark')) {
+                        html.classList.remove('dark');
+                        localStorage.theme = 'light';
+                    } else {
+                        html.classList.add('dark');
+                        localStorage.theme = 'dark';
+                    }
+                });
             }
-        });
 
-        // ---------------------------------------------------------
-        // ANIMASI SCROLL-DRIVEN (INTERPOLASI MATEMATIS)
-        // ---------------------------------------------------------
-        const floatingPreview = document.getElementById('floatingPreview');
-        const previewHeader = document.getElementById('previewHeader');
-        
-        function updateScrollAnimation() {
-            // Animasi scroll hanya berlaku untuk mobile (lebar layar di bawah 1024px)
-            if (window.innerWidth >= 1024) {
-                // Reset semua inline style ke default untuk mode desktop
-                floatingPreview.style = "";
-                previewHeader.style = "";
-                return;
-            }
+            // ---------------------------------------------------------
+            // ANIMASI SCROLL-DRIVEN (INTERPOLASI MATEMATIS)
+            // ---------------------------------------------------------
+            const floatingPreview = document.getElementById('floatingPreview');
+            const previewHeader = document.getElementById('previewHeader');
             
-            const scrollY = window.scrollY;
-            // Berapa piksel scroll yang dibutuhkan untuk mencapai ukuran terkecil?
-            const maxScroll = 180; 
-            
-            // Progress akan bernilai 0.0 sampai 1.0 (proporsional dengan gerakan jari)
-            const progress = Math.max(0, Math.min(1, scrollY / maxScroll));
-            
-            // Interpolasi Skala: dari 1 (100%) menjadi 0.65 (65%)
-            const scale = 1 - (0.35 * progress); 
-            
-            // Menghitung titik pusat awal dan target pojok kiri (16px dari tepi)
-            // Menggunakan transform dan CSS Calc agar render 60fps mulus tanpa patah-patah
-            floatingPreview.style.left = `calc(50% - (50% - 16px) * ${progress})`;
-            floatingPreview.style.transform = `translateX(calc(-50% * (1 - ${progress}))) scale(${scale})`;
-            floatingPreview.style.transformOrigin = "top left";
-            
-            // Memudarkan header "Pratinjau" dan menghilangkan marginnya
-            previewHeader.style.opacity = Math.max(0, 1 - (progress * 2)); // Pudar lebih cepat
-            previewHeader.style.height = `${Math.max(0, 44 * (1 - progress))}px`; 
-            previewHeader.style.marginBottom = `${Math.max(0, 16 * (1 - progress))}px`;
-        }
-
-        // Tautkan update ke event Scroll dengan requestAnimationFrame untuk performa terbaik
-        window.addEventListener('scroll', () => {
-            requestAnimationFrame(updateScrollAnimation);
-        });
-        window.addEventListener('resize', () => {
-            requestAnimationFrame(updateScrollAnimation);
-        });
-        
-        // Panggil sekali saat web dimuat untuk menetapkan posisi awal
-        updateScrollAnimation();
-
-
-        // ---------------------------------------------------------
-        // KONFIGURASI TEMPLAT (Koordinat Teks per Gambar)
-        // ---------------------------------------------------------
-        const templates = [
-            { 
-                id: 1, file: '1.jpg', boxCenterY: 0.842, 
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.075, sizeSekunderMult: 0.030, lineSpacing: 0.015, color: '#0c2d38' 
-            },
-            { 
-                id: 2, file: '2.jpg', boxCenterY: 0.865,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.065, sizeSekunderMult: 0.026, lineSpacing: 0.015, color: '#154126' 
-            },
-            { 
-                id: 3, file: '3.jpg', boxCenterY: 0.825,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#820C2d' 
-            },
-            { 
-                id: 4, file: '4.jpg', boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#517794' 
-            },
-            { 
-                id: 5, file: '5.jpg', boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#e8dbf7' 
-            },
-            { 
-                id: 6, file: '6.jpg', boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#0a3158' 
-            },
-            { 
-                id: 7, file: '7.jpg', boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#233389' 
-            },
-            { 
-                id: 8, file: '8.jpg', boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#644e1c' 
-            },
-            { 
-                id: 9, file: '9.jpg', boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#3382b8' 
-            },
-            { 
-                id: 10, file: '10.jpg', boxCenterY: 0.840,
-                fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif',
-                sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#3382b8' 
-            }
-        ];
-
-        // ---------------------------------------------------------
-        // INISIALISASI VARIABEL & DOM
-        // ---------------------------------------------------------
-        let activeTemplateId = 1;
-        const thumbnailContainer = document.getElementById('thumbnailContainer');
-        const inputNamaUtama = document.getElementById('inputNamaUtama');
-        const inputNamaSekunder = document.getElementById('inputNamaSekunder');
-        const previewImage = document.getElementById('previewImage');
-        const renderCanvas = document.getElementById('renderCanvas');
-        const ctx = renderCanvas.getContext('2d');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-
-        // Elemen Slider Posisi
-        const sliderX = document.getElementById('sliderX');
-        const sliderY = document.getElementById('sliderY');
-        const valX = document.getElementById('valX');
-        const valY = document.getElementById('valY');
-        const btnResetPosisi = document.getElementById('btnResetPosisi');
-
-        // State & Elemen Warna dan Ukuran
-        let customColor = null;
-        const inputColor = document.getElementById('inputColor');
-        const hexLabel = document.getElementById('hexLabel');
-
-        let currentScaleUtama = 100;
-        let currentScaleSekunder = 100;
-        const btnMinUtama = document.getElementById('btnMinUtama');
-        const btnPlusUtama = document.getElementById('btnPlusUtama');
-        const btnMinSekunder = document.getElementById('btnMinSekunder');
-        const btnPlusSekunder = document.getElementById('btnPlusSekunder');
-
-        // Render otomatis saat user mengetik atau menggeser slider
-        inputNamaUtama.addEventListener('input', () => prosesRender());
-        inputNamaSekunder.addEventListener('input', () => prosesRender());
-
-        sliderX.addEventListener('input', (e) => {
-            valX.textContent = e.target.value > 0 ? `+${e.target.value}` : e.target.value;
-            prosesRender();
-        });
-
-        sliderY.addEventListener('input', (e) => {
-            valY.textContent = e.target.value > 0 ? `+${e.target.value}` : e.target.value;
-            prosesRender();
-        });
-
-        // Warna Teks
-        inputColor.addEventListener('input', (e) => {
-            customColor = e.target.value;
-            hexLabel.textContent = customColor;
-            prosesRender();
-        });
-
-        // Fungsi Update Skala Teks (Per-kelipatan 5%)
-        function updateScale(jenis, delta) {
-            if (jenis === 'utama') {
-                currentScaleUtama = Math.max(50, Math.min(150, currentScaleUtama + delta));
-            } else {
-                currentScaleSekunder = Math.max(50, Math.min(150, currentScaleSekunder + delta));
-            }
-            prosesRender();
-        }
-
-        btnMinUtama.addEventListener('click', () => updateScale('utama', -5));
-        btnPlusUtama.addEventListener('click', () => updateScale('utama', 5));
-        btnMinSekunder.addEventListener('click', () => updateScale('sekunder', -5));
-        btnPlusSekunder.addEventListener('click', () => updateScale('sekunder', 5));
-
-        btnResetPosisi.addEventListener('click', () => {
-            sliderX.value = 0;
-            sliderY.value = 0;
-            valX.textContent = "0";
-            valY.textContent = "0";
-            
-            // Reset ukuran & warna
-            currentScaleUtama = 100;
-            currentScaleSekunder = 100;
-            
-            const activeConfig = templates.find(t => t.id === activeTemplateId);
-            customColor = activeConfig.color;
-            inputColor.value = customColor;
-            hexLabel.textContent = customColor;
-            
-            prosesRender();
-        });
-
-        // ---------------------------------------------------------
-        // RENDER UI THUMBNAILS
-        // ---------------------------------------------------------
-        function renderThumbnails() {
-            thumbnailContainer.innerHTML = '';
-            templates.forEach(tpl => {
-                const isSelected = tpl.id === activeTemplateId;
+            function updateScrollAnimation() {
+                // Animasi scroll hanya berlaku untuk mobile (lebar layar di bawah 1024px)
+                if (window.innerWidth >= 1024) {
+                    // Reset semua inline style ke default untuk mode desktop
+                    if(floatingPreview) floatingPreview.style = "";
+                    if(previewHeader) previewHeader.style = "";
+                    return;
+                }
                 
-                const wrapper = document.createElement('div');
-                wrapper.className = `relative flex-shrink-0 cursor-pointer transition-all duration-300 rounded-xl ${isSelected ? 'thumb-active' : 'opacity-60 hover:opacity-100 hover:scale-105'}`;
-                wrapper.onclick = () => {
-                    activeTemplateId = tpl.id;
-                    
-                    // Kembalikan slider ke titik tengah setiap kali ganti desain
-                    sliderX.value = 0;
-                    sliderY.value = 0;
-                    valX.textContent = "0";
-                    valY.textContent = "0";
-
-                    // Reset ukuran teks ke default 100%
-                    currentScaleUtama = 100;
-                    currentScaleSekunder = 100;
-
-                    // Reset dan Update Warna Teks sesuai desain yang dipilih
-                    const activeConfig = templates.find(t => t.id === activeTemplateId);
-                    customColor = activeConfig.color;
-                    inputColor.value = customColor;
-                    hexLabel.textContent = customColor;
-                    
-                    renderThumbnails(); 
-                    prosesRender();     
-                };
-
-                const img = document.createElement('img');
-                img.src = tpl.file;
-                img.className = `w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-cover rounded-xl bg-slate-200 dark:bg-slate-800`;
+                const scrollY = window.scrollY;
+                // Berapa piksel scroll yang dibutuhkan untuk mencapai ukuran terkecil?
+                const maxScroll = 180; 
                 
-                // Fallback jika file gambar tidak ditemukan
-                img.onerror = function() {
-                    this.src = buatGambarFallback(tpl.id);
-                };
+                // Progress akan bernilai 0.0 sampai 1.0 (proporsional dengan gerakan jari)
+                const progress = Math.max(0, Math.min(1, scrollY / maxScroll));
+                
+                // Interpolasi Skala: dari 1 (100%) menjadi 0.45 (45%)
+                const scale = 1 - (0.55 * progress); 
+                
+                // Menghitung titik pusat awal dan target pojok kiri (16px dari tepi)
+                // Menggunakan transform dan CSS Calc agar render 60fps mulus tanpa patah-patah
+                if(floatingPreview) {
+                    floatingPreview.style.left = `calc(50% - (50% - 16px) * ${progress})`;
+                    floatingPreview.style.transform = `translateX(calc(-50% * (1 - ${progress}))) scale(${scale})`;
+                    floatingPreview.style.transformOrigin = "top left";
+                }
+                
+                // Memudarkan header "Pratinjau" dan menghilangkan marginnya
+                if(previewHeader) {
+                    previewHeader.style.opacity = Math.max(0, 1 - (progress * 2)); // Pudar lebih cepat
+                    previewHeader.style.height = `${Math.max(0, 44 * (1 - progress))}px`; 
+                    previewHeader.style.marginBottom = `${Math.max(0, 16 * (1 - progress))}px`;
+                }
+            }
 
-                wrapper.appendChild(img);
-                thumbnailContainer.appendChild(wrapper);
+            window.addEventListener('scroll', () => {
+                requestAnimationFrame(updateScrollAnimation);
             });
-        }
-
-        // ---------------------------------------------------------
-        // PROSES RENDER CANVAS
-        // ---------------------------------------------------------
-        function prosesRender() {
-            loadingIndicator.classList.remove('hidden');
+            window.addEventListener('resize', () => {
+                requestAnimationFrame(updateScrollAnimation);
+            });
             
-            const activeConfig = templates.find(t => t.id === activeTemplateId);
-            const img = new Image();
-            img.crossOrigin = "Anonymous";
+            updateScrollAnimation();
+
+            // ---------------------------------------------------------
+            // KONFIGURASI TEMPLAT (Koordinat Teks per Gambar)
+            // ---------------------------------------------------------
+            const templates = [
+                { id: 1, file: '1.jpg', boxCenterY: 0.842, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.075, sizeSekunderMult: 0.030, lineSpacing: 0.015, color: '#0c2d38' },
+                { id: 2, file: '2.jpg', boxCenterY: 0.865, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.065, sizeSekunderMult: 0.026, lineSpacing: 0.015, color: '#154126' },
+                { id: 3, file: '3.jpg', boxCenterY: 0.825, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#820C2d' },
+                { id: 4, file: '4.jpg', boxCenterY: 0.840, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#517794' },
+                { id: 5, file: '5.jpg', boxCenterY: 0.840, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#e8dbf7' },
+                { id: 6, file: '6.jpg', boxCenterY: 0.840, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#0a3158' },
+                { id: 7, file: '7.jpg', boxCenterY: 0.840, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#233389' },
+                { id: 8, file: '8.jpg', boxCenterY: 0.840, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#644e1c' },
+                { id: 9, file: '9.jpg', boxCenterY: 0.840, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#3382b8' },
+                { id: 10, file: '10.jpg', boxCenterY: 0.840, fontUtama: '"Plus Jakarta Sans", Helvetica, sans-serif', fontSekunder: '"Plus Jakarta Sans", Helvetica, sans-serif', sizeUtamaMult: 0.070, sizeSekunderMult: 0.028, lineSpacing: 0.015, color: '#3382b8' }
+            ];
+
+            // ---------------------------------------------------------
+            // INISIALISASI VARIABEL & DOM
+            // ---------------------------------------------------------
+            let activeTemplateId = 1;
+            const thumbnailContainer = document.getElementById('thumbnailContainer');
+            const inputNamaUtama = document.getElementById('inputNamaUtama');
+            const inputNamaSekunder = document.getElementById('inputNamaSekunder');
+            const previewImage = document.getElementById('previewImage');
+            const renderCanvas = document.getElementById('renderCanvas');
+            const ctx = renderCanvas ? renderCanvas.getContext('2d') : null;
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            const sliderX = document.getElementById('sliderX');
+            const sliderY = document.getElementById('sliderY');
+            const valX = document.getElementById('valX');
+            const valY = document.getElementById('valY');
+            const btnResetPosisi = document.getElementById('btnResetPosisi');
+
+            let customColor = null;
+            const inputColor = document.getElementById('inputColor');
+            const hexLabel = document.getElementById('hexLabel');
+
+            let currentScaleUtama = 100;
+            let currentScaleSekunder = 100;
+            const btnMinUtama = document.getElementById('btnMinUtama');
+            const btnPlusUtama = document.getElementById('btnPlusUtama');
+            const btnMinSekunder = document.getElementById('btnMinSekunder');
+            const btnPlusSekunder = document.getElementById('btnPlusSekunder');
+
+            const scrollIndicatorTrack = document.getElementById('scrollIndicatorTrack');
+            const scrollIndicatorThumb = document.getElementById('scrollIndicatorThumb');
+
+            // --- Fungsi Pembantu ---
             
-            img.onload = () => {
-                renderCanvas.width = img.width;
-                renderCanvas.height = img.height;
-                const cw = renderCanvas.width;
-                const ch = renderCanvas.height;
-
-                ctx.clearRect(0, 0, cw, ch);
-                ctx.drawImage(img, 0, 0, cw, ch);
-
-                ctx.textAlign = 'center';
-                ctx.fillStyle = customColor || activeConfig.color;
-
-                const txtUtama = inputNamaUtama.value.trim();
-                const txtSekunder = inputNamaSekunder.value.trim();
-
-                // Faktor Skala dari State (100% = 1.0)
-                const scaleUtama = currentScaleUtama / 100;
-                const scaleSekunder = currentScaleSekunder / 100;
-
-                // Hitung ukuran aktual berdasarkan lebar/tinggi gambar dikalikan skala
-                const sizeUtama = Math.floor(cw * activeConfig.sizeUtamaMult * scaleUtama);
-                const sizeSekunder = Math.floor(cw * activeConfig.sizeSekunderMult * scaleSekunder);
-                const spacing = ch * activeConfig.lineSpacing;
+            function buatGambarFallback(id) {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = 1080;
+                tempCanvas.height = 1440;
+                const tCtx = tempCanvas.getContext('2d');
                 
-                // Hitung Koordinat Dasar
-                const baseCenterY = ch * activeConfig.boxCenterY;
-                const baseCenterX = cw / 2;
+                const hue = (id * 45) % 360;
+                tCtx.fillStyle = `hsl(${hue}, 15%, 85%)`; 
+                tCtx.fillRect(0,0, 1080, 1440);
+                
+                tCtx.fillStyle = `hsl(${hue}, 20%, 75%)`;
+                tCtx.beginPath(); tCtx.arc(540, 720, 300, 0, Math.PI*2); tCtx.fill();
 
-                // Tambahkan Offset dari Slider (-50% sampai 50% dari dimensi kanvas)
-                const offsetX = (parseFloat(sliderX.value) / 100) * (cw / 2);
-                const offsetY = (parseFloat(sliderY.value) / 100) * (ch / 2);
+                tCtx.fillStyle = '#333333';
+                tCtx.font = 'bold 60px sans-serif';
+                tCtx.textAlign = 'center';
+                tCtx.fillText(`Desain ${id}.jpg`, 540, 680);
+                
+                tCtx.font = '35px sans-serif';
+                tCtx.fillStyle = '#666666';
+                tCtx.fillText(`Simpan file asli dengan nama ${id}.jpg`, 540, 760);
+                tCtx.fillText(`di folder yang sama dengan HTML ini.`, 540, 810);
 
-                const finalX = baseCenterX + offsetX;
-                const finalY = baseCenterY + offsetY;
+                return tempCanvas.toDataURL('image/jpeg', 0.8);
+            }
 
-                // Logika Penempatan Simetris Presisi (Vertical Centering)
-                if (txtUtama && txtSekunder) {
-                    const totalHeight = sizeUtama + spacing + sizeSekunder;
-                    const yUtama = finalY - (totalHeight / 2) + (sizeUtama / 2);
-                    const ySekunder = finalY + (totalHeight / 2) - (sizeSekunder / 2);
+            function updateScrollIndicator() {
+                if (!thumbnailContainer || !scrollIndicatorTrack || !scrollIndicatorThumb) return;
 
-                    ctx.font = `bold ${sizeUtama}px ${activeConfig.fontUtama}`;
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(txtUtama, finalX, yUtama);
+                const scrollWidth = thumbnailContainer.scrollWidth;
+                const clientWidth = thumbnailContainer.clientWidth;
 
-                    ctx.font = `500 ${sizeSekunder}px ${activeConfig.fontSekunder}`;
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(txtSekunder, finalX, ySekunder); 
-                } else if (txtUtama) {
-                    ctx.font = `bold ${sizeUtama}px ${activeConfig.fontUtama}`;
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(txtUtama, finalX, finalY);
-                } else if (txtSekunder) {
-                    ctx.font = `500 ${sizeSekunder}px ${activeConfig.fontSekunder}`;
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(txtSekunder, finalX, finalY);
+                if (scrollWidth <= clientWidth) {
+                    scrollIndicatorTrack.style.display = 'none';
+                    return;
                 }
 
-                // Gunakan format JPEG (kualitas 90%) untuk preview agar lebih ringan di browser
-                previewImage.src = renderCanvas.toDataURL('image/jpeg', 0.9);
-                
-                loadingIndicator.classList.add('hidden');
-            };
+                scrollIndicatorTrack.style.display = 'block';
 
-            img.onerror = () => {
-                img.src = buatGambarFallback(activeConfig.id);
-            };
+                const thumbWidthRatio = clientWidth / scrollWidth;
+                const thumbWidthPercentage = Math.max(15, thumbWidthRatio * 100); 
+                scrollIndicatorThumb.style.width = `${thumbWidthPercentage}%`;
 
-            img.src = activeConfig.file;
-        }
+                const maxScrollLeft = scrollWidth - clientWidth;
+                const currentScrollLeft = thumbnailContainer.scrollLeft;
+                const scrollPercentage = currentScrollLeft / maxScrollLeft;
 
-        // ---------------------------------------------------------
-        // FUNGSI DOWNLOAD
-        // ---------------------------------------------------------
-        function unduhGambar() {
-            try {
-                // Konversi menjadi Blob JPEG dengan kualitas tinggi (100%)
-                renderCanvas.toBlob(function(blob) {
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    const namaFile = inputNamaUtama.value.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'kartu';
-                    link.download = `Studio_Lebaran_${namaFile}.jpg`;
-                    link.href = url;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }, 'image/jpeg', 1.0);
-            } catch (err) {
-                alert("Silakan ketuk dan tahan gambar untuk menyimpan secara manual.");
+                const maxThumbLeft = 100 - thumbWidthPercentage;
+                const thumbLeftPos = scrollPercentage * maxThumbLeft;
+
+                scrollIndicatorThumb.style.left = `${thumbLeftPos}%`;
             }
-        }
 
-        // ---------------------------------------------------------
-        // FUNGSI FALLBACK IMAGE (Hanya jalan jika file asli tidak ada)
-        // ---------------------------------------------------------
-        function buatGambarFallback(id) {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 1080;
-            tempCanvas.height = 1440; // Menyesuaikan rasio 3:4 yang umum
-            const tCtx = tempCanvas.getContext('2d');
-            
-            const hue = (id * 45) % 360;
-            tCtx.fillStyle = `hsl(${hue}, 15%, 85%)`; // Background terang
-            tCtx.fillRect(0,0, 1080, 1440);
-            
-            tCtx.fillStyle = `hsl(${hue}, 20%, 75%)`;
-            tCtx.beginPath(); tCtx.arc(540, 720, 300, 0, Math.PI*2); tCtx.fill();
+            function renderThumbnails() {
+                if(!thumbnailContainer) return;
+                thumbnailContainer.innerHTML = '';
+                templates.forEach(tpl => {
+                    const isSelected = tpl.id === activeTemplateId;
+                    
+                    const wrapper = document.createElement('div');
+                    wrapper.className = `relative flex-shrink-0 cursor-pointer transition-all duration-300 rounded-xl ${isSelected ? 'thumb-active' : 'opacity-60 hover:opacity-100 hover:scale-105'}`;
+                    wrapper.onclick = () => {
+                        activeTemplateId = tpl.id;
+                        
+                        if(sliderX) sliderX.value = 0;
+                        if(sliderY) sliderY.value = 0;
+                        if(valX) valX.textContent = "0";
+                        if(valY) valY.textContent = "0";
 
-            tCtx.fillStyle = '#333333';
-            tCtx.font = 'bold 60px sans-serif';
-            tCtx.textAlign = 'center';
-            tCtx.fillText(`Desain ${id}.jpg`, 540, 680);
-            
-            tCtx.font = '35px sans-serif';
-            tCtx.fillStyle = '#666666';
-            tCtx.fillText(`Simpan file asli dengan nama ${id}.jpg`, 540, 760);
-            tCtx.fillText(`di folder yang sama dengan HTML ini.`, 540, 810);
+                        currentScaleUtama = 100;
+                        currentScaleSekunder = 100;
 
-            return tempCanvas.toDataURL('image/jpeg', 0.8);
-        }
+                        const activeConfig = templates.find(t => t.id === activeTemplateId);
+                        customColor = activeConfig.color;
+                        if(inputColor) inputColor.value = customColor;
+                        if(hexLabel) hexLabel.textContent = customColor;
+                        
+                        renderThumbnails(); 
+                        prosesRender();     
+                    };
 
-        // Jalankan saat web dimuat
-        window.onload = () => {
+                    const img = document.createElement('img');
+                    img.src = tpl.file;
+                    img.className = `w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-cover rounded-xl bg-slate-200 dark:bg-slate-800`;
+                    
+                    img.onerror = function() {
+                        this.src = buatGambarFallback(tpl.id);
+                    };
+
+                    wrapper.appendChild(img);
+                    thumbnailContainer.appendChild(wrapper);
+                });
+                
+                setTimeout(updateScrollIndicator, 100);
+            }
+
+            function prosesRender() {
+                if(!loadingIndicator || !previewImage || !renderCanvas || !ctx || !inputNamaUtama || !inputNamaSekunder) return;
+                
+                loadingIndicator.classList.remove('hidden');
+                
+                const activeConfig = templates.find(t => t.id === activeTemplateId);
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                
+                img.onload = () => {
+                    renderCanvas.width = img.width;
+                    renderCanvas.height = img.height;
+                    const cw = renderCanvas.width;
+                    const ch = renderCanvas.height;
+
+                    ctx.clearRect(0, 0, cw, ch);
+                    ctx.drawImage(img, 0, 0, cw, ch);
+
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = customColor || activeConfig.color;
+
+                    const txtUtama = inputNamaUtama.value.trim();
+                    const txtSekunder = inputNamaSekunder.value.trim();
+
+                    const scaleUtama = currentScaleUtama / 100;
+                    const scaleSekunder = currentScaleSekunder / 100;
+
+                    const sizeUtama = Math.floor(cw * activeConfig.sizeUtamaMult * scaleUtama);
+                    const sizeSekunder = Math.floor(cw * activeConfig.sizeSekunderMult * scaleSekunder);
+                    const spacing = ch * activeConfig.lineSpacing;
+                    
+                    const baseCenterY = ch * activeConfig.boxCenterY;
+                    const baseCenterX = cw / 2;
+
+                    const offsetX = sliderX ? (parseFloat(sliderX.value) / 100) * (cw / 2) : 0;
+                    const offsetY = sliderY ? (parseFloat(sliderY.value) / 100) * (ch / 2) : 0;
+
+                    const finalX = baseCenterX + offsetX;
+                    const finalY = baseCenterY + offsetY;
+
+                    if (txtUtama && txtSekunder) {
+                        const totalHeight = sizeUtama + spacing + sizeSekunder;
+                        const yUtama = finalY - (totalHeight / 2) + (sizeUtama / 2);
+                        const ySekunder = finalY + (totalHeight / 2) - (sizeSekunder / 2);
+
+                        ctx.font = `bold ${sizeUtama}px ${activeConfig.fontUtama}`;
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(txtUtama, finalX, yUtama);
+
+                        ctx.font = `500 ${sizeSekunder}px ${activeConfig.fontSekunder}`;
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(txtSekunder, finalX, ySekunder); 
+                    } else if (txtUtama) {
+                        ctx.font = `bold ${sizeUtama}px ${activeConfig.fontUtama}`;
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(txtUtama, finalX, finalY);
+                    } else if (txtSekunder) {
+                        ctx.font = `500 ${sizeSekunder}px ${activeConfig.fontSekunder}`;
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(txtSekunder, finalX, finalY);
+                    }
+
+                    previewImage.src = renderCanvas.toDataURL('image/jpeg', 0.9);
+                    
+                    loadingIndicator.classList.add('hidden');
+                };
+
+                img.onerror = () => {
+                    img.src = buatGambarFallback(activeConfig.id);
+                };
+
+                img.src = activeConfig.file;
+            }
+
+            function updateScale(jenis, delta) {
+                if (jenis === 'utama') {
+                    currentScaleUtama = Math.max(50, Math.min(150, currentScaleUtama + delta));
+                } else {
+                    currentScaleSekunder = Math.max(50, Math.min(150, currentScaleSekunder + delta));
+                }
+                prosesRender();
+            }
+
+            // Fungsi Download diekspos ke scope Global agar bisa diakses oleh onclick=""
+            window.unduhGambar = function() {
+                try {
+                    renderCanvas.toBlob(function(blob) {
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        const namaFile = inputNamaUtama.value.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'kartu';
+                        link.download = `Studio_Lebaran_${namaFile}.jpg`;
+                        link.href = url;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    }, 'image/jpeg', 1.0);
+                } catch (err) {
+                    alert("Silakan ketuk dan tahan gambar untuk menyimpan secara manual.");
+                }
+            };
+
+
+            // --- MENGHUBUNGKAN EVENT LISTENERS ---
+            if(inputNamaUtama) inputNamaUtama.addEventListener('input', () => prosesRender());
+            if(inputNamaSekunder) inputNamaSekunder.addEventListener('input', () => prosesRender());
+
+            if(sliderX) {
+                sliderX.addEventListener('input', (e) => {
+                    if(valX) valX.textContent = e.target.value > 0 ? `+${e.target.value}` : e.target.value;
+                    prosesRender();
+                });
+            }
+
+            if(sliderY) {
+                sliderY.addEventListener('input', (e) => {
+                    if(valY) valY.textContent = e.target.value > 0 ? `+${e.target.value}` : e.target.value;
+                    prosesRender();
+                });
+            }
+
+            if(inputColor) {
+                inputColor.addEventListener('input', (e) => {
+                    customColor = e.target.value;
+                    if(hexLabel) hexLabel.textContent = customColor;
+                    prosesRender();
+                });
+            }
+
+            if(btnMinUtama) btnMinUtama.addEventListener('click', () => updateScale('utama', -5));
+            if(btnPlusUtama) btnPlusUtama.addEventListener('click', () => updateScale('utama', 5));
+            if(btnMinSekunder) btnMinSekunder.addEventListener('click', () => updateScale('sekunder', -5));
+            if(btnPlusSekunder) btnPlusSekunder.addEventListener('click', () => updateScale('sekunder', 5));
+
+            if(btnResetPosisi) {
+                btnResetPosisi.addEventListener('click', () => {
+                    if(sliderX) sliderX.value = 0;
+                    if(sliderY) sliderY.value = 0;
+                    if(valX) valX.textContent = "0";
+                    if(valY) valY.textContent = "0";
+                    
+                    currentScaleUtama = 100;
+                    currentScaleSekunder = 100;
+                    
+                    const activeConfig = templates.find(t => t.id === activeTemplateId);
+                    customColor = activeConfig.color;
+                    if(inputColor) inputColor.value = customColor;
+                    if(hexLabel) hexLabel.textContent = customColor;
+                    
+                    prosesRender();
+                });
+            }
+
+            if(thumbnailContainer) {
+                thumbnailContainer.addEventListener('scroll', updateScrollIndicator);
+                window.addEventListener('resize', updateScrollIndicator);
+            }
+
+            // Jalankan proses render awal
             renderThumbnails();
             prosesRender();
-        };
+        });
     </script>
 </body>
 </html>
