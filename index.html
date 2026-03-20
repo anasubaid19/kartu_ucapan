@@ -263,8 +263,8 @@
                 // Progress akan bernilai 0.0 sampai 1.0 (proporsional dengan gerakan jari)
                 const progress = Math.max(0, Math.min(1, scrollY / maxScroll));
                 
-                // Interpolasi Skala: dari 1 (100%) menjadi 0.45 (45%)
-                const scale = 1 - (0.55 * progress); 
+                // Interpolasi Skala: dari 1 (100%) menjadi 0.70 (70%)
+                const scale = 1 - (0.30 * progress); 
                 
                 // Menghitung titik pusat awal dan target pojok kiri (16px dari tepi)
                 // Menggunakan transform dan CSS Calc agar render 60fps mulus tanpa patah-patah
